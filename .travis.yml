@@ -1,7 +1,12 @@
-# .travis.yml - configuration file for the travis continuous integration service
-# see http://about.travis-ci.org/docs/user/languages/php for more hints
-#
 language: generic
-sudo: required
-script:
+services: docker
+env:
+  global:
+  - DOCKER_REPO=ea31337/ea-tester:dev
+  matrix:
+  - BT_RUN="compile_ea EA31337 && run_backtest -m1 -e EA31337"
+before_script:
 - find . -name "*.sh" -exec bash -n {} ';'
+- docker pull $DOCKER_REPO
+script:
+- docker run -v "$PWD:/opt/EA31337:ro" $DOCKER_REPO 'cp -fr /opt/EA31337 "$EXPERTS_DIR"/EA31337;' $BT_RUN
